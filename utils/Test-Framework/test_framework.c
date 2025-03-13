@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2020-2024 NXP
+ * Copyright 2020-2025 NXP
  */
 
 /* FreeRTOS includes. */
@@ -48,6 +48,7 @@
 #include "tc_i2c_eeprom.h"
 #endif /* GEUL_LA1246 */
 #include "tc_i2c_tmu.h"
+#include "tc_i2c_lmp92xx.h"
 #include "tc_heap_usage.h"
 #include "tc_ipisr.h"
 #include "tc_tmu.h"
@@ -355,6 +356,7 @@ FunctionHashTable_t xFunctionMap[]  __attribute__ ((section (".shared.data"))) =
 #endif /* TEST_COMPLETE_EEPROM_RW */
 #endif /* GEUL_LA1246 */
 	{ "i2c_tmu_read", vI2CtmuReadTest, "Test I2C TMU Read Functionality" },
+	{ "i2c_lmp92xx", vI2Ctestlmp92xx, "Test I2C LMP92xx Read Write Functionality" },
 #endif /* GEUL_DEMO_I2C_TEST */
 
 	/* GPIO Toggle Test Cases */

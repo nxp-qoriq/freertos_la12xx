@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2019-2024 NXP
+# Copyright 2019-2025 NXP
 
 INCLUDE(CMakeForceCompiler)
 INCLUDE(CMakeDependentOption)
@@ -984,6 +984,7 @@ SET(GEUL_SOURCES ${GEUL_SOURCES}
 	"${ProjDirPath}/../../utils/Test-Framework/tc_i2c_eeprom.c"
 	"${ProjDirPath}/../../utils/Test-Framework/tc_i2c_tmu.c"
 	"${ProjDirPath}/../../utils/Test-Framework/tc_tmu.c"
+	"${ProjDirPath}/../../utils/Test-Framework/tc_i2c_lmp92xx.c"
 	"${ProjDirPath}/../../utils/Test-Framework/tc_ipisr.c"
 	"${ProjDirPath}/../../utils/Test-Framework/tc_latency.c"
 	"${ProjDirPath}/../../utils/Test-Framework/tc_smem_text.c"
