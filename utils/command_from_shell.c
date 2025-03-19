@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2020-2024 NXP
+ * Copyright 2020-2025 NXP
  *
  * FreeRTOS Kernel V10.0.1
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
@@ -1880,15 +1880,17 @@ static portBASE_TYPE prvI2cWriteCommand( char *pcWriteBuffer, size_t xWriteBuffe
 		uint8_t uiVal[uiLen];
 
 	log_dbg("\n\ricwrite %d 0x%x 0x%x 0x%x %d",uiBusNo, uiDeviceBaseAddress, uiOffSet, uiData, uiOffLen );
-        if(uiBusNo==1)
-                uiBusBaseAddress=I2C1_BASE_ADDR;
-        else if (uiBusNo==2)
-                uiBusBaseAddress=I2C2_BASE_ADDR;
-        else
-        {
-                log_info("\n\rInvalid Bus no, only Bus no 1 and 2 are initialized");
-                return pdFALSE;
-        }
+	if(uiBusNo==1)
+		uiBusBaseAddress=I2C1_BASE_ADDR;
+	else if (uiBusNo==2)
+		uiBusBaseAddress=I2C2_BASE_ADDR;
+	else if (uiBusNo==3)
+		uiBusBaseAddress=I2C3_BASE_ADDR;
+	else
+	{
+		log_info("\n\rInvalid Bus no, only Bus no 1,2 and 3 are initialized");
+		return pdFALSE;
+	}
 	switch(uiOffLen)
 	{
 		case 1:uiOffLen2=I2C_DEV_OFFSET_LEN_1_BYTE;break;
@@ -1998,9 +2000,11 @@ static portBASE_TYPE prvI2cReadCommand( char *pcWriteBuffer, size_t xWriteBuffer
 		uiBusBaseAddress=I2C1_BASE_ADDR;
 	else if (uiBusNo==2)
 		uiBusBaseAddress=I2C2_BASE_ADDR;
+	else if (uiBusNo==3)
+		uiBusBaseAddress=I2C3_BASE_ADDR;
 	else
 		{
-			log_info("\n\rInvalid Bus no, only Bus no 1 and 2 are initialized");
+			log_info("\n\rInvalid Bus no, only Bus no 1,2 and 3 are initialized");
 			return pdFALSE;
 		}
 

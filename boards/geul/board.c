@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright 2020-2024 NXP
+ * Copyright 2020-2025 NXP
  */
 
 #include <common.h>
@@ -620,17 +620,22 @@ void vBoardEarlyInit(uint8_t core_id)
 	/* Init I2C */
     if (core_id == GEUL_E200_MASTER_CORE)
     {
-        ulRet = iI2C_Init(I2C1_BASE_ADDR, I2C_CLK_FREQ, I2C_FREQ);
-        if (ulRet == 1)
-            DPRINTF("I2C1 init successful\n\r");
-        else
-            PRINTF("I2C1 init failed\n\r");
+	    ulRet = iI2C_Init(I2C1_BASE_ADDR, I2C_CLK_FREQ, I2C_FREQ);
+	    if (ulRet == 1)
+		    DPRINTF("I2C1 init successful\n\r");
+	    else
+		    PRINTF("I2C1 init failed\n\r");
 
-        ulRet = iI2C_Init(I2C2_BASE_ADDR, I2C_CLK_FREQ, I2C_FREQ);
-        if (ulRet == 1)
-            DPRINTF("I2C2 init successful\n\r");
-        else
-            PRINTF("I2C2 init failed\n\r");
+	    ulRet = iI2C_Init(I2C2_BASE_ADDR, I2C_CLK_FREQ, I2C_FREQ);
+	    if (ulRet == 1)
+		    DPRINTF("I2C2 init successful\n\r");
+	    else
+		    PRINTF("I2C2 init failed\n\r");
+	    ulRet = iI2C_Init(I2C3_BASE_ADDR, I2C_CLK_FREQ, I2C_FREQ);
+	    if (ulRet == 1)
+		    DPRINTF("I2C3 init successful\n\r");
+	    else
+		    PRINTF("I2C3 init failed\n\r");
     }
 
     /* get_board_version uses i2c1 so we need to keep this after i2c1 init */
