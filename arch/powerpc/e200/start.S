@@ -118,6 +118,9 @@ __init_registers:
      */
     mfmsr       r6
     e_ori       r6, r6, 0x0200        /* Debug Interrupt Enable, DE */
+#ifdef ENABLE_SPE
+    se_bseti    r6, 6                    /* Set SPE bit */
+#endif
     mtmsr       r6
     se_isync
 

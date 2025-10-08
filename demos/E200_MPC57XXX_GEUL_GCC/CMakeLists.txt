@@ -307,6 +307,14 @@ else()
 	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -specs=nosys.specs -Wl,--print-memory-usage")
 endif()
 
+set(ENABLE_SPE OFF)
+
+if(ENABLE_SPE)
+	add_definitions(-DENABLE_SPE)
+	SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}  -mspe2")
+	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -mspe2")
+endif()
+
 # ASM MACRO
 SET(CMAKE_ASM_FLAGS_DEBUG "${CMAKE_ASM_FLAGS_DEBUG}  -D__DEBUG --sysroot=$ENV{E200GCC_DIR}/powerpc-eabivle/newlib/")
 
