@@ -1,0 +1,44 @@
+NXP Software Content Register
+-----------------------------
+Release Name:       LA12xx SDK
+Package:	    FreeRTOS BSP
+Date Updated:       Dec 2025
+Release Location:   NXP github
+Description: 	FREERTOS_LA12XX repository contains all the software components for
+the LA12xx SoC. It includes FreeRTOS, LA12xx Drives, tools, config
+files or scripts that are required, and any test IQ data that might be
+required for basic data path test
+----------------------------------------
+Package:                        arch
+                                boards
+                                demos
+                                drivers
+                                include
+                                lib
+                                tools
+                                utils
+Outgoing License:               Open Source - BSD-3-Clause
+License File:                   licenses/BSD-3-Clause
+Package Category:               FreeRTOS Platform Support
+Description and comments:       Changes to support LA12xx SoC
+Type of content:                Source code
+Origin:                         NXP (BSD-3-Clause)
+
+Package:                        si551x  
+Outgoing License:               zlib
+License File:                   licenses/zlib
+Package Category:               FreeRTOS Driver
+Description and comments:       Skyworks drivers for FreeRTOS
+Type of content:                Source code
+Origin:                         Skyworks Solution Inc.
+Location:                       drivers/si551x
+
+Package:                        FreeRTOS(tm)    
+                                utils
+Version:                        10.6.0
+Outgoing License:               Open Source - MIT
+License File:                   FreeRTOS/LICENSE.md
+Package Category:               FreeRTOS OS
+Type of content:                Source code
+Origin:                         Open Source (http://www.freertos.org)
+Location:                       FreeRTOS

@@ -1,0 +1,13 @@
+cscope*
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+errors
+release
+sha-id.txt
+warnings
+*.swp
+*.patch
+*.log
+tags

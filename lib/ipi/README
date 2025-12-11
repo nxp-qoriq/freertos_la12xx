@@ -1,0 +1,216 @@
+The IPI module is used to send/receive user data between multiple e200 cores of Geul.
+This uses the FreeRTOS features of Events and Queues to transfer the data between multiple cores.
+An interrupt is generated as soon as there is some data to be received 
+on a pariticular core.
+
+1. The IPI driver API:
+
+1)
+enum IPIEventID {
+	IPI_EVT_ID_NULL = -1,
+	IPI_EVT_ID0 = 0,
+	IPI_EVT_ID1 = 1,
+	IPI_EVT_ID2 = 2,
+	IPI_EVT_ID3 = 3,
+	IPI_EVT_ID4 = 4,
+	IPI_EVT_ID5 = 5,
+	IPI_EVT_ID6 = 6,
+	IPI_EVT_ID7 = 7,
+	IPI_EVT_ID8 = 8,
+	IPI_EVT_ID9 = 9,
+	IPI_EVT_ID10 = 10,
+	IPI_EVT_ID11 = 11,
+	IPI_EVT_ID12 = 12,
+	IPI_EVT_ID13 = 13,
+	IPI_EVT_ID14 = 14,
+	IPI_EVT_ID15 = 15,
+	IPI_EVT_ID_MAX = 16
+};
+
+Description:
+	IPI Event ID is used to wake up the target task which will be notified.
+	This Event ID is local ID on each e200 Core.
+	Each Event ID is associated to one FreeRTOS queue.
+
+2)
+enum IPIEventID vIPIEventRegister(enum IPIEventID eventID, QueueHandle_t *Queue);
+
+Description:
+	Register IPI Event ID for the FreeRTOS task which will be notified by remote or local task.
+
+Parameter:
+	enum IPIEventID eventID:
+	User can specify the event ID which has not been acquired on this core.
+	User can also pass IPI_EVT_ID_NULL parameter and this function will allocate one event ID for user in success.
+
+	QueueHandle_t *Queue:
+	User should pass one point of FreeRTOS Queue to this function.
+	The function will set this point with one FreeRTOS Queue associated to the event ID returened in success.
+
+Return:
+	enum IPIEventID:
+	If user specifies the event ID which has not been registered,
+	the return value is just the event ID passed, otherwise, the return value is IPI_EVT_ID_NULL.
+	If the parameter enum IPIEventID eventID is IPI_EVT_ID_NULL,
+	the return value is one of value from IPI_EVT_ID0 to IPI_EVT_ID15 in success or IPI_EVT_ID_NULL in failure.
+
+3)
+void vIPIEventUnRegister(enum IPIEventID eventID);
+
+Description:
+        Un-Register the IPI Event ID whhich could be used by other local task later.
+
+4)
+void vIPICoreInit(void);
+
+Description:
+	Initialize IPI communication context on each core.
+	This function should be called on each core after MPIC initalization and before tasks are created.
+	This function creates one IPI peer task to receive event from IPI ISRs and send data to APP tasks.
+	This function registers/enables 4 IPI interrupts for 4 IPI RX channels respectively.
+	Each IPI RX channel is associated to one remote core or local core to receive data.
+	Only one IPI TX channel is associated to local core.
+
+5)
+BaseType_t vIPISendData(u8 dstCore, enum IPIEventID eventID, void *useData);
+
+Description:
+	Send point of user Data to the target task on remote/local core with its event ID registered.
+Parmaeters:
+	u8 dstCore:
+	Target core ID (0~3).
+	
+	enum IPIEventID eventID:
+	IPI event ID registered by target task.
+
+	void *useData:
+	Point of user data which will be sent to the target task.
+
+Return:
+	BaseType_t:
+	pdTRUE in success.
+	pdFALSE in fail (queue full).
+
+6)
+void vIPIGlobalQStatusCheck(int dstCore, int srcCore);
+
+Description:
+	Debug purpose to check the status of global queues.
+
+7)
+void vIPISyncSet(void);
+
+Description:
+	Called after EVENT IDs are registered. Used to notify remote task that receiver is ready.
+
+8)
+int vIPISyncCheck(void);
+
+Description:
+	Check if remote tasks are ready to receive data.
+
+Return:
+	pdTRUE, remote tasks are ready to receive data.
+	pdFALSE, remote tasks have not registered event ID to receive data.
+
+
+
+2. Demo code for reference:
+
+1)
+void vGeulIPIDemo(void);
+
+Description:
+	Entry of the demo, which creates on task to test.
+
+2)
+Test scenarios:
+	i)  Send data from multiple cores to single core concurrent.
+	user needs to set gIPITestMode to IPI_MULTI_SRC_SINGLE_DST for this scenario.
+
+	ii) Send data from single core to multiple cores.
+	user needs to set gIPITestMode to IPI_SINGLE_SRC_MULTI_DST for this scenario.
+
+	iii)Send data to its right neighbor core and receive data from its left neighbor core.
+
+		core0->core1->core2->core3--
+		^                           |
+ 		|___________________________|
+
+	user needs to set gIPITestMode to IPI_CHAIN_SINGLE_SRC_SINGLE_DST for this scenario.
+
+	The test code will quit if all the expected data are sent and received.
+	To make sure the connections are stable and reliable.
+
+3) Pseudocode to creae simple IPI communication between two coree.
+This will transmit and receive a single piece of data(an int)
+between between 0<-->1 and 2<-->3
+
+static void vGeulIPIDemoTest(void *pvParam)
+{
+        enum IPIEventID eventID=IPI_EVT_ID1;
+        u32 current_core = ulMpicCurrentCore();
+        QueueHandle_t rxQueue;
+        QueueHandle_t rxQueueAvailable;
+        QueueSetHandle_t rxQueueSet = xQueueCreateSet(IPI_DEMO_EVENT_NUM * 8);  //Add maximum 8 elements per queue
+        vIPIEventRegister(eventID, &rxQueue);
+        xQueueAddToSet(rxQueue, rxQueueSet);
+        int txData=10;
+        int txData2=12;
+        void *rxData=NULL;
+        int ret;
+        vIPISyncSet();
+        while (1) {
+                if (vIPISyncCheck() > 0)
+                        break;
+                vTaskDelay(1);
+        }
+        while(1)
+        {
+                rxData=NULL;
+                if(current_core == 0)
+                {
+                        txData=txData+1;
+                        log_info("Send to core 1 data=%d\r\n", txData);
+                        if(pdFALSE == vIPISendData(1, eventID, (void *)txData))
+                                log_info("\nIPISendData fail");
+                }
+                else if(current_core == 1)
+                {
+                        txData=txData+10;
+                        log_info("Send to core 0 data=%d\r\n", txData);
+                        if(pdFALSE == vIPISendData(0, eventID, (void *)txData))
+                                log_info("\nIPISendData fail");
+                }
+                else if(current_core == 2)
+                {
+                        txData2=txData2+11;
+                        log_info("Send to core 3 data=%d\r\n", txData2);
+                        if(pdFALSE == vIPISendData(3, eventID, (void *)txData2))
+                                log_info("\nIPISendData fail");
+
+                }
+                else if(current_core == 3)
+                {
+                        txData2=txData2+10;
+                        log_info("Send to core 2 data=%d\r\n", txData2);
+                        if(pdFALSE == vIPISendData(2, eventID, (void *)txData2))
+                                log_info("\nIPISendData fail");
+                }
+                vTaskDelay(1);
+                rxQueueAvailable = (QueueHandle_t)xQueueSelectFromSet(rxQueueSet, 1);
+                if(rxQueueAvailable)
+                {
+                        ret = xQueueReceive(rxQueueAvailable, &rxData, 0);
+                        if(ret==pdTRUE)						
+                        {
+                                log_info("\n\rData received=%d",(int )rxData);
+                        }
+                }
+                else
+                {
+                        log_info("\n\r rxQueue not Availaible");
+
+                }
+        }
+}

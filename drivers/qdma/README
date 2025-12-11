@@ -1,0 +1,238 @@
+1. The qDMA driver API show:
+
+BaseType_t QdmaInit()
+	Summary:
+		- The qDMA driver initialized.
+	Parameters:
+		- None.
+	Returned value:
+		- If the qDMA driver initialized successful then pdPASS is returned
+		else pdFAIL is returned.
+
+void *DmaRequest()
+	Summary:
+		- Request a dma channel.
+	Parameters:
+		- None.
+	Returned value:
+		- If gNxpQdmaList with free channels then one of channels is returned
+		else NULL is returned.
+
+void *DmaPrepMemcpy( void *Chan, BaseType_t Src, BaseType_t Dst, size_t Len, void *CallBack, void *Params)
+	Summary:
+		- Prepare memcpy for signal buffer.
+	Parameters:
+		- Chan:
+				Target dma channel for this operation.
+		- Src:
+				Source physical address.
+		- Dst:
+				Destination physical address.
+		- Len:
+				Size of this operation to transfer.
+		- CallBack:
+				Routine to call after this operation is complete.
+		- Parameters:
+				General parameter to pass to the callback routine.
+	Returned value:
+		- If descriptors of this channel is not NULL then the first descriptor is returned
+		else NULL is returned.
+
+void *DmaPrepMemcpySG( void *Chan, BaseType_t *Src, BaseType_t *Dst, size_t *Len, size_t sgNum, void *CallBack, void *Params)
+	Summary:
+		- Prepare memcpy for mulitiple buffers.
+	Parameters:
+		- Chan:
+				Target dma channel for this operation.
+		- Src:
+				Address point of the first source physical address.
+		- Dst:
+				Address point of the first destination physical address.
+		- Len:
+				Leng point of the first transfer size.
+		- CallBack:
+				Routine to call after this operation is complete.
+		- Params:
+				General parameter to pass to the callback routine.
+	Returned value:
+		- If descriptors of this channel is not NULL then the first descriptor is returned
+		else NULL is returned.
+
+void DmaIssuePending( void *Chan, void *Comp )
+	Summary:
+		- Push pending transactions to hardware.
+	Parameters:
+		- Chan:
+				Target dma channel for this operation.
+		- Comp:
+				Soft descriptor for this operation.
+	Returned value:
+		- None.
+
+void DmaRlease( void *NxpChan )
+	Summary:
+		- Release resource for this dma channel.
+	Parameters:
+		- Chan:
+				Target dma channel for this operation.
+	Returned value:
+		- None.
+
+2. How to use this driver
+	The qDMA accelerator supports two different formats as follows, depending on
+	the usage model and feature required.
+	- Long command list table format.
+	- Ultra-short descriptor format.
+
+	To use Long command list table format, we should #define
+	configUSE_LONG_CMD_DESC_FMT.
+
+	- The Single Src/Dest Data Buffer(see test1)
+	- The Multiple Src/Dest Data Buffers(see test2)
+
+	To use Ultra-short descriptor format, we should #undef
+	configUSE_LONG_CMD_DESC_FMT.
+
+	- The Single Src/Dest Data Buffer(see test1)
+
+
+3. Platform to test
+	The QDMA driver is tested successfully on Simulator and CFP Model
+
+	To run on CFP, ensure that macro
+			"SIMULATOR_WORKAROUND" is not defined
+
+	To run on simulator, ensure that macro
+			"SIMULATOR_WORKAROUND" is defined
+		#define SIMULATOR_WORKAROUND 1
+	This macro is requires as interrupts are getting
+	generated for queue threshold at instant when
+	queue event interrupt is expected.
+	Below defect ticket raised for simulator model:
+	DTSIM-4464: Geul Simulator, QDMA : interrupt functionality not
+		working as expected.
+
+/*************************test for qdma driver*******************/
+	void callback(void *param)
+	{
+		int *p = param;
+		*p = *p + 1;
+	}
+
+test1:
+	void qdma_test()
+	{
+	BaseType_t src_addr;
+	BaseType_t dst_addr;
+	void *chan;
+	void *qcomp;
+	int flag = 0;
+	size_t len;
+	int i;
+
+		len = 0x2000;
+		src_addr = (BaseType_t)pvPortMalloc(len);
+		if( !src_addr )
+		{
+			log_err("Failed to alloc src\r\n");
+			return;
+		}
+		dst_addr = (BaseType_t)pvPortMalloc(len);
+		if( !dst_addr )
+		{
+			log_err("Failed to alloc dst\r\n");
+			return;
+		}
+		memset((char *)src_addr, 0xef, len);
+		memset((char *)dst_addr, 0x55, len);
+		if ( !QdmaInit() )
+		{
+			log_err("Failed to qdma init\r\n");
+			return;
+		}
+		chan = DmaRequest();
+		if ( !chan )
+		{
+			log_err("chan error\r\n");
+			return;
+		}
+		qcomp = DmaPrepMemcpy(chan, src_addr, dst_addr, len, callback, &flag);
+		if ( !qcomp )
+		{
+			log_err("qcomp error\r\n");
+			return;
+		}
+		DmaIssuePending(chan, qcomp);
+		while(!flag);
+		if ( !strncmp((char *)src_addr, (char *)dst_addr, len))
+			log_info("successful to transfer\r\n");
+		else
+			log_info("failed to transfer\r\n");
+		DmaRlease(chan);
+		vPortFree( (void *)src_addr );
+		vPortFree( (void *)dst_addr );
+	}
+
+test2:
+void qdma_test()
+{
+#define NUM 5
+BaseType_t src_addr[ NUM ];
+BaseType_t dst_addr[ NUM ];
+void *chan;
+void *qcomp;
+int flag = 0;
+size_t len[ NUM ];
+int i;
+
+	for (i = 0; i < NUM; i++)
+	{
+		len[i] = (size_t)0x400 + (size_t)i*0x100;
+		src_addr[i] = (BaseType_t)pvPortMalloc( len[i] );
+		if ( !src_addr[i] )
+			log_err("failed to malloc src %d", i);
+
+		dst_addr[i] = (BaseType_t)pvPortMalloc( len[i] );
+		if ( !dst_addr[i] )
+			log_err("failed to malloc src %d", i);
+
+		memset((char *)src_addr[i], 0xef + i, len[i]);
+		memset((char *)dst_addr[i], 0x55 + i, len[i]);
+	}
+
+	if ( !QdmaInit() )
+	{
+		log_err("Failed to qdma init\r\n");
+		return;
+	}
+
+	chan = DmaRequest();
+	if ( !chan )
+	{
+		log_err("chan error\r\n");
+		return;
+	}
+
+	qcomp = DmaPrepMemcpySG(chan, src_addr, dst_addr, len, NUM, callback, &flag);
+	if ( !qcomp )
+	{
+		log_err("qcomp error\r\n");
+		return;
+	}
+
+	DmaIssuePending(chan, qcomp);
+	while(!flag);
+
+	for(i = 0; i < NUM; i++)
+	{
+		if ( !strncmp((char *)src_addr[i], (char *)dst_addr[i], len[i]))
+			log_info("successful to transfer for %d \r\n", i);
+		else
+			log_info("failed to transfer for %d\r\n", i);
+
+		vPortFree( (void *)src_addr[i] );
+		vPortFree( (void *)dst_addr[i] );
+	}
+	DmaRlease(chan);
+}
+/***********************************************************************/

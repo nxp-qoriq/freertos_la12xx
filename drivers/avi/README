@@ -1,0 +1,156 @@
+VSPA AVI API
+------------
+
+AVI HANDLER INIT :
+------------------------------
+Prototype in geul_avi.h
+
+/**
+ * @brief : Initializes the AVI for use
+ * @param[in] : TaskHandle_t : Task handler of the task invoking pxGeulAviInit API, it is required to create spinlock
+ *
+ * @return : SUCCESS Initialized AVI, FAILURE returns NULL
+ */
+AviHandle_t *pxGeulAviInit( TaskHandle_t xHandle );
+
+AVI GET Handler:
+-----------------------------------
+Prototype in geul_avi.h
+/**
+ * @brief : Return avi handler pointer
+ *
+ * @return : Returns the pointer to AVI handler, if initialization is not done then returns NULL
+ */
+AviHandle_t *pxGeulAviGetHandle( void );
+
+MBOX0 (Fast mailbox – without spinlock) :
+--------------------------------------
+Prototype in geul_avi.h:
+/**
+ * @brief : Sends MBOX to VSPA using MBOX_0
+ *      Receiver responsibility to make sure multiple E200 cores are not accessing same mailbox
+ *
+ * @param[in] AviHandle_t : AVI library handle
+ * @param[in] VspaCore_t : VSPA instance
+ * @param[in] AviMboxData_t : Mailbox structure to be sent
+ *
+ * @return : AviStatusCodes_t
+*/
+AviStatusCodes_t exGeulAviHostSendFastMboxToVspa( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, AviMboxData_t xAviMboxData );
+
+API/Parameter	Function/Parameter	Description	Comment
+API function AviStatusCodes_t exGeulAviHostSendFastMboxToVspa( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, AviMboxData_t xAviMboxData ) : This function is used to send data to Mailbox-0
+
+                                 Input Parameter
+InPutParam-1	AviHandle_t *pxAviHandle	: Pointer to AVI handler
+InPutParam-2	VspaCore_t eVspaCore 		: 8 VSPA cores
+InPutParam-3	AviMboxData_t xAviMboxData	: Mailbox structure having command code
+OutputParam	AviStatusCodes_t		: AVI status codes
+MBOX1 (Slow mailbox – with spinlock) :
+-----------------------------------------
+Prototype geul_avi.h:
+/**
+ * @brief : Sends MBOX to VSPA using MBOX_1
+ * 	Synchronization is achieved using spinlock
+ * @param[in] AviHandle_t : AVI library handle
+ * @param[in] VspaCore_t : VSPA instance
+ * @param[in] AviMboxData_t : Mailbox structure to be sent
+ *
+ * @return : AviStatusCodes_t
+*/
+AviStatusCodes_t exGeulAviHostSendSlowMboxToVspa( AviHandle_t * pxAviHandle, VspaCore_t eVspaCore, AviMboxData_t xAviMboxData );
+
+API/Parameter	Function/Parameter	Description	Comment
+API function AviStatusCodes_t exGeulAviHostSendSlowMboxToVspa( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, AviMboxData_t xAviMboxData ) : This function is used to send data to Mailbox-1
+
+                                 Input Parameter
+InPutParam-1	AviHandle_t *pxAviHandle	: Pointer to AVI handler
+InPutParam-2	VspaCore_t eVspaCore 		: 8 VSPA cores
+InPutParam-3	AviMboxData_t xAviMboxData	: Mailbox structure having command code
+OutputParam	AviStatusCodes_t		: AVI status codes
+Recv function
+-----------------------------------------
+Prototype geul_avi.h:
+/**
+ * @brief : Check if VSPA out mailbox is valid ,if valid then read the VSPA
+ *                       mailbox and fill the pointer or else return error code
+ *
+ * @param[in]  AviHandle_t : AVI library handle
+ * @param[in]  VspaCore_t : VSPA core number
+ * @param[in]  VspaMboxIndex_t : VSPA mailbox index to be read
+ * @param[out] AviMboxData_t : Mailbox structure to be populated after reading
+ *
+ * @return : AviStatusCodes_t
+ */
+AviStatusCodes_t exGeulAviHostRecvMboxFromVspa( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore,VspaMboxIndex_t eVspaMboxIndex, AviMboxData_t *pxAviMboxData );
+
+API/Parameter	Function/Parameter	Description	Comment
+API function AviStatusCodes_t exGeulAviHostRecvMboxFromVspa( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore,VspaMboxIndex_t eVspaMboxIndex, AviMboxData_t *pxAviMboxData ) : This function is used to read data from mailbox-0/1
+
+                                 Input Parameter
+InPutParam-1	AviHandle_t *pxAviHandle	: Pointer to AVI handler
+InPutParam-2	VspaCore_t eVspaCore 		: 8 VSPA cores
+InPutParam-3	VspaMboxIndex_t eVspaMboxIndex	: Mailbox index either 0 or 1
+InPutParam-4	AviMboxData_t xAviMboxData	: Pointer to Mailbox structure having response
+OutputParam	AviStatusCodes_t		: AVI status codes
+
+ISR register function
+-----------------------------------------
+Prototype geul_avi.h:
+/**
+ * @brief : Register interrupt for VSPA mailbox
+ * @param[in] : AviHandle_t : AVI library hndlr
+ * @param[in] : VspaCore_t : vspa core
+ * @param[in] : VspaIsrGroup_t : vspa interrupt group
+ * @param[in] : VspaCallbackFn : function pointer to isr
+ * @param[in] : VspaCallbackData : ISR data
+ *
+ * @return : AviStatusCodes_t
+*/
+AviStatusCodes_t exGeulRegisterVspaInterrupt( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, VspaIsrGroup_t eVspaGroup, VspaCallbackFn pvIsr, VspaCallbackData pvData );
+
+API/Parameter	Function/Parameter	Description	Comment
+API function	AviStatusCodes_t exGeulRegisterVspaInterrupt( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, VspaIsrGroup_t eVspaGroup, VspaCallbackFn pvIsr, VspaCallbackData pvData ) : This function is used to register VSPA ISR function
+
+                                 Input Parameter
+InPutParam-1	AviHandle_t *pxAviHandle	: Pointer to AVI handler
+InPutParam-2	VspaCore_t eVspaCore 		: 8 VSPA cores
+InPutParam-3	VspaIsrGroup_t eVspaGroup	: VSPA ISR GROUP(A/B)
+InPutParam-4	VspaCallbackFn pvIsr		: ISR function which will be called upon generation of VSPA interrupt
+InPutParam-5	VspaCallbackData pvData 	: ISR function data which will be used in ISR function
+OutputParam	AviStatusCodes_t		: AVI status codes
+ISR unregister function
+-----------------------------------------
+Prototype geul_avi.h:
+/**
+ * @brief : Unregister interrupt for VSPA mailbox
+ * @param[in] : AviHandle_t : AVI library hndlr
+ * @param[in] : VspaCore_t : vspa core
+ * @param[in] : VspaIsrGroup_t : vspa interrupt group
+ *
+ * @return : AviStatusCodes_t
+*/
+AviStatusCodes_t exGeulUnRegisterVspaInterrupt( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, VspaIsrGroup_t eVspaGroup );
+
+API/Parameter	Function/Parameter	Description	Comment
+API function	AviStatusCodes_t exGeulUnRegisterVspaInterrupt( AviHandle_t *pxAviHandle, VspaCore_t eVspaCore, VspaIsrGroup_t eVspaGroup ) : This function is used to unregister VSPA ISR function
+
+                                 Input Parameter
+InPutParam-1	AviHandle_t *pxAviHandle	: Pointer to AVI handler
+InPutParam-2	VspaCore_t eVspaCore 		: 8 VSPA cores
+InPutParam-3	VspaIsrGroup_t eVspaGroup	: VSPA ISR GROUP(A/B)
+OutputParam	AviStatusCodes_t		: AVI status codes
+
+----------------------------------
+Test Framework
+----------------------------------
+Note:
+1. User needs to ensure there will not be any simultaneous read will happen in multicore enviornment
+2. User needs to define ISR and this ISR will be directly registered with mpic, whenever vspa interrupts is generated user needs to andle this
+3. In test framework we are using spinlock to protect multicore access
+
+Please refer tc_avi.c and tc_vspa.c for test-framework implementation, which includes:
+1. defining ISR
+2. Synchronization using Spinlock
+3. Receive function is used inside ISR to read vspa data
+4. For all the 8 VSPA core, in test framework we are registering same ISR, user can register different ISR or they can implement API similar to iGeulVspaCore to get VSPA core

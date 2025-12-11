@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2019-2021 NXP
+ */
+
+GEUL e200 Spinlocks:
+	In GEUL spinlocks are storing from (SRAM_BASE_ADDRESS + 4K)
+
+	In GEUL we have following spinlock API support:
+	- pxSpinLockAlloc()
+        - pxSpinLockGet()
+	- vSpinLockAcquire()
+	- vSpinLockRelease()
+	- uiSpinLockCheckStatus()
+  	- uiSpinLockTryAcquire()
+	- ulSpinLockAcquireIRQlock()
+	- vSpinLockReleaseIRQlock()
+
+
+1. pxSpinLockAlloc:
+	This function Allocates the memory to spinlock from shared SRAM region and returns spinlock to the caller.
+	Each time calling xSpinLockAlloc, returns new spinlock.
+
+	This function returns the lock, which is used to pass as a parameter to all other spinlock functions.
+	We have total of 1024 spinlock support in GEUL, once all spinlocks are used, it will return NULL means 1024 locks are  used, no free locks available.
+
+	Syntax:
+	struct SpinLock* pxSpinLockAlloc( TaskHandle_t task, void *parent_data_struct );
+	
+	Here task is the taskhandle of the task which called xSpinLockAlloc function. 
+	parent_data_struct is a pointer to data which will be protected by this lock.
+
+	Eg: struct SpinLock* lock;
+	    lock = pxSpinLockAlloc(task, &parent_data_struct);
+
+2. pxSpinLockGet:
+        This function Allocates the memory to spinlock from shared SRAM region and returns static spinlock to the caller.
+
+   	Syntax:
+   	struct SpinLock* pxSpinLockGet( TaskHandle_t xTask, void *pvParentDataStruct, Spinlock_t xSpinlockIndx );
+
+   	Here task is the taskhandle of the task which called xSpinLockAlloc function.
+   	parent_data_struct is a pointer to data which will be protected by this lock.
+
+   	Eg: struct SpinLock* lock;
+  	    lock = pxSpinLockGet(task, &parent_data_struct,xSpinlockIndx);
+
+   
+3. vSpinLockAcquire:
+	This is the basic spinlock which is used to protect the critical section b/w normal tasks.
+	If the lock is free, aquires it; otherwise spins until the lock become free.
+
+	We need pass lock as a argument to this function; The lock we will get from calling pxSpinLockAlloc function.
+	
+	Syntax:
+	void vSpinLockAcquire( struct SpinLock* lock );
+
+	Eg: vSpinLockAcquire(lock);
+	    // Critical section
+	    vSpinLockRelease(lock);
+
+
+4. vSpinLockRelease:
+	This function should call along with vSpinLockAcquire/uiSpinLockTryAcquire functions.
+	This function releases the lock which was previously acquired by vSpinLockAcquire/uiSpinLockTryAcquire.
+
+	Synatx:
+	void vSpinLockRelease( struct SpinLock* lock ); 
+
+	Eg: vSpinLockAcquire(lock);
+            // Critical section
+            vSpinLockRelease(lock);
+
+
+5.uiSpinLockCheckStatus:
+	This function checks whether the lock is free or not.
+	Returns nonzero if the given lock is currently acquired, otherwise it returns zero.
+
+	Syntax:
+	uint32_t uiSpinLockCheckStatus( struct SpinLock* lock );
+
+	Eg: uint32_t lock_status = uiSpinLockCheckStatus(lock);
+
+
+6. uiSpinLockTryAcquire:
+	This function Tries to acquire the lock; if the lock is free, acuquires it otherwise exits without waiting for the lock.
+	So, this function won't spin for the lock like xSpinLockAcquire does.
+	If it gets the returns zero, else returns non zero.
+	
+	Syntax:
+	uint32_t uiSpinLockTryAcquire( struct SpinLock* lock );
+
+	Eg: if(!uiSpinLockTryAcquire())
+	    {
+		// Critical section
+		vSpinLockRelease(lock);
+	    }
+
+	
+7. ulSpinLockAcquireIRQlock:
+	If the critical section is shared b/w process and interrupt handler, then we should use ulSpinLockAcquireIRQlock() instead of 
+        vSpinLockAcquire().
+	While calling normal spinlcoks(vSpinLockAcquire), they won't disable the interrupts, but we need to disable interrupts othewise with 
+        spinlock held interrupts casuses sometimes deadlock.
+
+	This function saves the current state of local interrupts(on that core), disables the loacl interrupts and then acquires the lock.
+
+	It returns interrupt flags which will use to restore the interrupt state by calling xSpinLockRelease_IRQ_RESTORE() function.
+	
+	Syntax:
+	unsigned long ulSpinLockAcquireIRQlock( struct SpinLock* lock, unsigned long flags );
+
+	Eg: unsigned long irq_flags = ulSpinLockAcquireIRQlock(mylock, irq_flags);
+	    // Critical section
+	    vSpinLockReleaseIRQlock(lock, irq_flags);	
+
+
+8. vSpinLockReleaseIRQlock:
+	
+	This function releases the lock and restores local interrupts to previous state.
+	It should call along with ulSpinLockAcquireIRQlock function.
+
+	The interrupt state Prior to calling ulSpinLockAcquireIRQlock will be saved into flags argument by ulSpinLockAcquireIRQlock function           and the same flags passed to vSpinLockReleaseIRQlock function and so vSpinLockReleaseIRQlock restores the previous interrupt state             and also release the lock whoch was acquired by ulSpinLockAcquireIRQlock function.
+
+	Syntax:
+	void vSpinLockReleaseIRQlock( struct SpinLock* lock , unsigned long flags);
+
+	Eg:
+	unsigned long irq_flags = xSpinLockAcquire_IRQ_SAVE(mylock, irq_flags);
+	// Critical section
+	vSpinLockReleaseIRQlock(lock, irq_flags);
+
+
+SpinLock Test Framework:
+	The spinlock test file is tc_spinlock.c
+	spinlock test is eanbled/disabed by GEUL_DEMO_SPINLOCK_TEST macro.
+	Spinlock test is only can done if we issue the spinlock test command.
+		
+		test spinlock 0xf -1
+	With the above commamd, spinlock runs on all the cores infinately.
+		
+		test spinlock 0xf 500
+        With the above commamd, spinlock runs 500 itrations on all the cores.
+
+	In the tc_spinlock.c file, following test functionalities are covered.
+	1. pxSpinLockAlloc API testing.
+	2. vSpinLockAcquire and vSpinLockRelease API's testing
+	3. uiSpinLockTryAcquire and vSpinLockRelease API's testing
+	4. uiSpinLockCheckStatus API testing
+	5. ulSpinLockAcquireIRQlock and vSpinLockReleaseIRQlock API's testing
+	6. Checking Spinlock debug info like core id, parenet data structure.
+	7. Timers checking between lock acquire/release.
+	8. The basic functionality of all the Spinlock functions are added in the test app, two tasks created for each core which will continuously test(in a loop) 
+	   acquire and release of all types of the Spinlocks.
+	9. One task is for creating separate spinlock on each core by calling pxSpinLockAlloc from each core. 
+	10. Second task share the same spinlock between all the cores.
+	    Generally this can be done by: One core will get the spinlock by calling pxSpinLockAlloc function and then pass the lock to all other cores through IPI.
+	    So, In spinlock_test.c file, LocalSpinLock is for storing the Spinlock address.
+
+	   Also, pxSpinTest is used to store the shared data between the core)

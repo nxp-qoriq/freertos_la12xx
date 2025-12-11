@@ -1,0 +1,191 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright 2022-2023 NXP
+ */
+
+#ifndef DCS_REGS_B0_H__
+#define DCS_REGS_B0_H__
+
+#include <immap.h>
+#include <bit.h>
+#include "dcs_plat_config.h"
+
+#define L1C_STUB 1  /*L1C reference stub code */
+
+#define CHECK_FOR_ERROR_CODE_AND_RETURN(x) if(x)\
+    {\
+    log_err("\r\nFailed at %d, Err:%d",__LINE__,x); \
+    return uiErr;\
+    }
+
+#define dcs_out_le32(val, addr)	out_le32((addr), (val))
+#define dcs_in_le32(addr)		in_le32((addr))
+
+#define SYNC_TRUE  2
+#define SET_N_SYNC 1
+#define ONLY_SYNC  0
+
+/* Start - Error Codes */
+#define DCS_SUCCESS     		0
+#define DCS_ERR_ENABLE			1
+#define DCS_ERR_DISABLE			2
+#ifndef DCS_WAIT_TIMEOUT
+#define DCS_WAIT_TIMEOUT		5
+#endif
+/*End - Error Codes*/
+
+#define DCS_BASE_ADDR DCS_LS1_BASE
+
+#define DCS_SVCR            (DCS_BASE_ADDR + 0x0)
+#define DCS_CVCR            (DCS_BASE_ADDR + 0x4)
+#define DCS_MISC_CTRL_REG	(DCS_BASE_ADDR + 0x30)
+#define DCS_ADC_DAC_OPM_STATUS_REG  (DCS_BASE_ADDR + 0x34)
+#define DCS_ADC_RSTCTL    (DCS_BASE_ADDR + 0x40)
+#define DCS_ADC0_CFGCTL   (DCS_BASE_ADDR + 0x50)
+#define DCS_ADC1_CFGCTL   (DCS_BASE_ADDR + 0x54)
+#define DCS_ADC2_CFGCTL   (DCS_BASE_ADDR + 0x58)
+#define DCS_ADC3_CFGCTL   (DCS_BASE_ADDR + 0x5C)
+#define DCS_ADC0_TMNGCTL1 (DCS_BASE_ADDR + 0xD0)
+#define DCS_ADC0_TMNGCTL2 (DCS_BASE_ADDR + 0xD4)
+#define DCS_ADC1_TMNGCTL1 (DCS_BASE_ADDR + 0xD8)
+#define DCS_ADC1_TMNGCTL2 (DCS_BASE_ADDR + 0xDC)
+#define DCS_ADC2_TMNGCTL1 (DCS_BASE_ADDR + 0xE0)
+#define DCS_ADC2_TMNGCTL2 (DCS_BASE_ADDR + 0xE4)
+#define DCS_ADC3_TMNGCTL1 (DCS_BASE_ADDR + 0xE8)
+#define DCS_ADC3_TMNGCTL2 (DCS_BASE_ADDR + 0xEC)
+#define DCS_ADC_RDYCTRL   (DCS_BASE_ADDR + 0x2D0)
+#define DCS_ADC_CALCTL    (DCS_BASE_ADDR + 0x2D4)
+#define DCS_ADC_ENCTL     (DCS_BASE_ADDR + 0x31C)
+#define DCS_DAC_RSTCTL    (DCS_BASE_ADDR + 0x500)
+#define DCS_DAC0_CFGCTL1  (DCS_BASE_ADDR + 0x510)
+#define DCS_DAC0_CFGCTL2  (DCS_BASE_ADDR + 0x514)
+#define DCS_DAC1_CFGCTL1  (DCS_BASE_ADDR + 0x518)
+#define DCS_DAC1_CFGCTL2  (DCS_BASE_ADDR + 0x51C)
+#define DCS_DAC2_CFGCTL1  (DCS_BASE_ADDR + 0x520)
+#define DCS_DAC2_CFGCTL2  (DCS_BASE_ADDR + 0x524)
+#define DCS_DAC3_CFGCTL1  (DCS_BASE_ADDR + 0x528)
+#define DCS_DAC3_CFGCTL2  (DCS_BASE_ADDR + 0x52C)
+#define DCS_DAC0_TMNGCTL1 (DCS_BASE_ADDR + 0x610)
+#define DCS_DAC0_TMNGCTL2 (DCS_BASE_ADDR + 0x614)
+#define DCS_DAC1_TMNGCTL1 (DCS_BASE_ADDR + 0x618)
+#define DCS_DAC1_TMNGCTL2 (DCS_BASE_ADDR + 0x61C)
+#define DCS_DAC2_TMNGCTL1 (DCS_BASE_ADDR + 0x620)
+#define DCS_DAC2_TMNGCTL2 (DCS_BASE_ADDR + 0x624)
+#define DCS_DAC3_TMNGCTL1 (DCS_BASE_ADDR + 0x628)
+#define DCS_DAC3_TMNGCTL2 (DCS_BASE_ADDR + 0x62C)
+#define DCS_DAC_RDYCTRL  (DCS_BASE_ADDR + 0x810)
+#define DCS_DAC_ENCTL     (DCS_BASE_ADDR + 0x85C)
+#define DCS_CH0_CLKCFG1     (DCS_BASE_ADDR + 0x860)
+#define DCS_CH0_CLKCTRL     (DCS_BASE_ADDR + 0x868)
+#define DCS_CH1_CLKCTRL     (DCS_BASE_ADDR + 0x888)
+#define DCS_CH2_CLKCTRL     (DCS_BASE_ADDR + 0x8A8)
+#define DCS_CH3_CLKCTRL     (DCS_BASE_ADDR + 0x8C8)
+#define DCS_I2C_OPCTL       (DCS_BASE_ADDR + 0xA40)
+#define DCS_SUBSYS_INTREN   (DCS_BASE_ADDR + 0xA60)
+#define DCS_SUBSYS_INTRTYP  (DCS_BASE_ADDR + 0xA70)
+#define DCS_ADC_STAT      (DCS_BASE_ADDR + 0xAB0)
+#define DCS_ADC_ERRSTAT1  (DCS_BASE_ADDR + 0xAD4)
+#define DCS_ADC_ERRSTAT2  (DCS_BASE_ADDR + 0xAD8)
+#define DCS_DAC_STAT      (DCS_BASE_ADDR + 0xB90)
+#define DCS_DAC_ERRSTAT1  (DCS_BASE_ADDR + 0xBB4)
+#define DCS_DAC_ERRSTAT2  (DCS_BASE_ADDR + 0xBB8)
+#define DCS_TEST_LPBK_CFGCTL (DCS_BASE_ADDR + 0xC10)
+#define DCS_TEST_Ch0_CFGCTL1 (DCS_BASE_ADDR + 0xC20)
+#define DCS_TEST_Ch0_CFGCTL2 (DCS_BASE_ADDR + 0xC24)
+#define DCS_TEST_Ch0_CFGCTL3 (DCS_BASE_ADDR + 0xC28)
+#define DCS_TEST_Ch0_CFGCTL4 (DCS_BASE_ADDR + 0xC2C)
+#define DCS_TEST_Ch0_CFGCTL5 (DCS_BASE_ADDR + 0xC30)
+#define DCS_TEST_Ch1_CFGCTL1 (DCS_BASE_ADDR + 0xC50)
+#define DCS_TEST_Ch1_CFGCTL2 (DCS_BASE_ADDR + 0xC54)
+#define DCS_TEST_Ch1_CFGCTL3 (DCS_BASE_ADDR + 0xC58)
+#define DCS_TEST_Ch1_CFGCTL4 (DCS_BASE_ADDR + 0xC5C)
+#define DCS_TEST_Ch1_CFGCTL5 (DCS_BASE_ADDR + 0xC60)
+#define DCS_TEST_Ch2_CFGCTL1 (DCS_BASE_ADDR + 0xC80)
+#define DCS_TEST_Ch2_CFGCTL2 (DCS_BASE_ADDR + 0xC84)
+#define DCS_TEST_Ch2_CFGCTL3 (DCS_BASE_ADDR + 0xC88)
+#define DCS_TEST_Ch2_CFGCTL4 (DCS_BASE_ADDR + 0xC8C)
+#define DCS_TEST_Ch2_CFGCTL5 (DCS_BASE_ADDR + 0xC90)
+#define DCS_TEST_Ch3_CFGCTL1 (DCS_BASE_ADDR + 0xCB0)
+#define DCS_TEST_Ch3_CFGCTL2 (DCS_BASE_ADDR + 0xCB4)
+#define DCS_TEST_Ch3_CFGCTL3 (DCS_BASE_ADDR + 0xCB8)
+#define DCS_TEST_Ch3_CFGCTL4 (DCS_BASE_ADDR + 0xCBC)
+#define DCS_TEST_Ch3_CFGCTL5 (DCS_BASE_ADDR + 0xCC0)
+#define DCS_TEST_CH_DOMUXCTL (DCS_BASE_ADDR + 0xF20)
+#define DCS_TEST_MISC_DOMUXCTL (DCS_BASE_ADDR + 0xF24)
+#define DCS_TEST_Ch0_STAT    ( DCS_BASE_ADDR + 0xF30)
+#define DCS_TEST_Ch1_STAT    (DCS_BASE_ADDR + 0xF38)
+#define DCS_TEST_Ch2_STAT    (DCS_BASE_ADDR + 0xF40)
+#define DCS_TEST_Ch3_STAT    (DCS_BASE_ADDR + 0xF48)
+#define DCS_REG_SPACE_SYNC   (DCS_BASE_ADDR + 0xFFC)
+
+#define PLL_LOCK_BIT	(0x1 << 6)
+#define TBGEN_CLK_EN    (0x1 << 5)
+
+#define DCS_SYNC_RETRY	 2000
+
+#define TRGR_CLKDIV_SYNC	(0x1 << 1)
+#define TRGR_RDYCTL_SYNC	(0x1 << 2)
+#define TRGR_ADC_SYNC		(0x1 << 3)
+#define TRGR_DAC_SYNC		(0x1 << 4)
+
+#define DAC_RDY_STATS    0x0000000f
+#define ADC_RDY_STATS    0x0000000f
+
+#define LS_DAC_CLK_DIV_POS 16
+/* ls dcs_clk is 491.52MHz */
+/* divisor 1, sps: 491.52 MHz */
+#define LS_DAC_CLK_DIV_1   1
+/* divisor 2, sps: 245.76 MHz */
+#define LS_DAC_CLK_DIV_2   2
+/* divisor 4, sps:  122.88 MHz */
+#define LS_DAC_CLK_DIV_4   4
+/* divisor 8, sps: 61.44 MHz */
+#define LS_DAC_CLK_DIV_8   8
+
+/* divisor 2, sps: 245.76 MHz */
+#define LS_ADC_CLK_DIV_2   2
+/* divisor 4, sps:  122.88 MHz */
+#define LS_ADC_CLK_DIV_4   4
+/* divisor 8, sps: 61.44 MHz */
+#define LS_ADC_CLK_DIV_8   8
+
+#define LSDCS_MAX_ADC_CHANNELS 8
+
+#define LSADC_I2C_CONTROL_REG_21_VAL 0x00 // Default 0x10
+
+#define DCS_VAL_I2C_ADC_EN_BASE  0x00010000
+
+#define DCS_I2C_BASE_ADDR		0x0
+#define DCS_I2C_CHANGE_CAL_FREQ 0x21
+#define DCS_I2C_ANLG_COM_OFFSET 0x2E
+
+/* Default register values */
+#define DCS_VAL_MISC_CTRL_REG       0x00000042
+#define DCS_VAL_CH0_CLKCFG1         0x00010002
+#define DCS_VAL_CH_N_CLKCTRL        0x00000101
+#define DCS_VAL_DAC_ENCTL         0x0000000f
+#define DCS_VAL_ADC_CH_N_CLKCTRL    0x00000001
+#define DCS_VAL_DAC_CH_N_CLKCTRL    0x00000100
+#define DCS_VAL_DAC_RSTCTL        0x0000000f
+#if defined (YUCCA_RF) || defined (DIORA_RF) || defined (ICEWINGS_RF)
+#define DCS_VAL_DAC_N_CFGCTL1     0x01000f03
+#else
+#define DCS_VAL_DAC_N_CFGCTL1     0x01000703
+#endif
+#define DCS_VAL_DAC_N_CFGCTL2     0x000230BA
+#define DCS_VAL_DAC_RDYCTRL       0x0000000f
+
+#define DCS_VAL_ADC_N_CFGCTLV0    0x00000000
+
+#define DCS_VAL_ADC_N_CFGCTLV1    0x00001110
+#define DCS_VAL_ADC_ENCTL         0x0000000f
+#define DCS_VAL_ADC_RSTCTL        0x0000000f
+#define DCS_VAL_ADC_CALCTL        0x0000000f
+
+#define DCS_VAL_ADC_N_CFGCTLV2    0x00001113
+#define DCS_VAL_ADC_RDYCTRL       0x0000000f
+#define DCS_MISC_CTRL_REG_TBGEN_EN  0x00000062
+
+int uiCheckDcsLsConfig( volatile struct gul_hif *pxHif );
+
+#endif /* DCS_REGS_B0_H__ */

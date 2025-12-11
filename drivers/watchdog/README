@@ -1,0 +1,88 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/* Copyright 2019-2020 NXP
+ * 
+ */
+
+GEUL Watchdog Timer:
+	In GEUL, Watchdog timer is used to restart the system incase hang of L1C tasks, secondary E200 cores, VSPAs.
+
+	The Watchdog timer is a 32-bit down counter that notifies the system if the counter has not been reset by software in a specified time.
+	There will be two watchdog timeouts: in the 1st timeout generates Watchdog Interrupt (WDOGINT). 
+        Watchdog Interrupt (Active High) is connected to the MPIC Internal Interrupt 21(WDOGINT).
+	After the 1st timeout, the counter value is reloaded and down counting continues, 
+	if the counter reaches zero again before the interrupt is cleared, 
+	then 2nd time out will occur. In this case, the watchdog hardware will raise Reset notification to Host(LS1046).
+
+	Upon Host(or LS1046) receives the interrupt(Reset notification), it notifies the MAC about Hung condition. 
+	MAC do the Clean up procedures and MAC request the reset of MODEM to Host.
+	Modem’s HRESET is connected to a GPIO on LS1046, this GPIO is pulled to reset the Modem.
+
+	In Geul, Watchdog timer is started by L1C and once the timer is started its countdown starts
+	and after 1st timeout, Geul watchdog interrupt handler executes.
+	Watchdog Interrupt handler calls to L1C for getting the components (L1C tasks, secondary E200 cores, VSPAs) functioning status. 
+	If all the components are found to be working the watchdog counter is reloaded again and Modem continues working as usual.
+	If either one or more components are found not working or the ISR itself didn’t execute, 
+	the watchdog hardware will raise Reset notification to IO pin on Geul SOC which cause interrupt on Host.
+
+
+GEUL Watchdog API:
+Application can we use the following GEUL Watchdog APIs.
+The Watchdog API(watchdog_api.h) is in "geul_freertos_la12xx_devel/FreeRTOS/Demo/E200_MPC57XXX_GEUL_GCC/include/" directory.
+
+   1.vWdogStart
+     Application can use this API to Initialize and then Start/Enable Watchdog.
+     
+     Syntax:
+     void vWdogStart( uint32_t  wdog_load_val,  int (*L1C_callback_func)(void) );
+
+     @params:
+	wdog_load_val - Watchdog load value  
+	L1C_callback_func -  L1C code Call back function, this callback function should pass by L1C.
+
+      @return:
+	void
+
+   2.vWdogStop
+     Application can use this API to Stop/Disable Watchdog.
+     Use vWdogStart to start WDOG again if used vWdogStop.
+
+     Syntax:
+     void vWdogStop(void);
+
+     @params:
+	void
+     @return:
+	void
+
+    3.vWdogReload
+      Application can use this API to Reload Watchdog timer at run time.
+
+      Syntax:
+      void vWdogReload(uint32_t  new_wdog_load_val,  int (*L1C_callback_func)(void));
+
+      @params:
+	new_wdog_load_val: new Watchdog load value
+	L1C_callback_func: L1C code Call back function, this callback function can be same which passed to “vWdogStart” function.
+
+
+Watchdog interrupt handler:-
+    wdogIRQHandler:
+    This function executes every time once the 1st timeout occurs.
+    It checks L1C components status by calling the L1C call back function(which passed in vWdogStart or vWdogReload function).
+    If the return value of call back function is 1 then reload the watchdog timer, else if the return value is 0,
+    then don't load timer, so after 2nd timeout watchdog hardware send the reset notification to Host(LS1046).
+
+    bool_t wdogIRQHandler(uint32_t ulIrq_No, void * vDev_Data);
+	ulIrq_No - Interrupt number, which is MPIC watchdog interrupt
+        vDev_Data - Any private device info, here NULL is passed
+
+
+GEUL WatchdogTest:-
+    vWatchdogTest:
+    This test function is only for internal tetsing.
+    It starts the watchdog timer by loading the timer value and also provides the callbcak function for getting status.
+    The watchdog load value is calculted using following:
+	A counter value 1 corresponds to 30.5us , 
+	So Ideally the Decimal equivalent of [Value loaded in Hex in WDOG] x 30.5 would give the time in microseconds
+
+
