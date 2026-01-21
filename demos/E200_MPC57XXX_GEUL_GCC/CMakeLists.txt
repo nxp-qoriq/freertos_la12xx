@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright 2019-2025 NXP
+# Copyright 2019-2026 NXP
 
 INCLUDE(CMakeForceCompiler)
 INCLUDE(CMakeDependentOption)
 
 # CROSS COMPILER SETTING
 SET(CMAKE_SYSTEM_NAME Generic)
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8.12)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.10)
 PROJECT(LA12XX)
 
 # THE VERSION NUMBER
@@ -1057,7 +1057,7 @@ endif()
 
 # SHA-ID AND TIMESTAMP
 execute_process (
-	COMMAND bash -c "echo -n `date +'%F %T'` : `git describe --abbrev=4 --tags --dirty`"
+	COMMAND bash -c "echo -n `date +'%F %T'` : `git describe --abbrev=4 --tags --dirty --always 2>/dev/null || echo 'no-git'`"
 	OUTPUT_VARIABLE GITVERSION
 	)
 
