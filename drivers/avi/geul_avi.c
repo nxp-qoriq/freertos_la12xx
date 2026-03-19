@@ -269,9 +269,6 @@ AviStatusCodes_t exGeulRegisterVspaInterrupt( AviHandle_t *pxAviHandle, VspaCore
                 return AVI_INIT_NOT_DONE;
         }
 
-	if ( (dir & VSPA_MBOX_W) == VSPA_MBOX_W )
-		QueueInit = false;
-
 	if (QueueInit) {
 		/*   Create VSPA to CM4 queues */
 		pxAviHandle->xVspaIntrNo[ eVspaCore ][ eVspaGroup ].VspaToCm4QMbox
