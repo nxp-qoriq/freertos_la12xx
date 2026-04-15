@@ -2383,7 +2383,7 @@ process_pending_qdma_transactions(void)
                                 pending_jobs[queue_index].deq_op = NULL;
 			}
 		}
-		queue_index++;
+		queue_index = (queue_index + 1) % MAX_QUEUES_PER_CORE;
 		empty_pending_jobs = 0;
 		for (i = 0; i < MAX_QUEUES_PER_CORE; i++) {
 			/* Check if all pending jobs are NULL */
