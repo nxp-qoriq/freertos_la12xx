@@ -1,0 +1,161 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-04-15T07:14:29Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.26"
+  },
+  "name": "freertos-kernel-la12xx-sdk4.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/662e2300-b9ab-4d09-8de3-134c4cead64d",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d",
+      "name": "freertos-kernel",
+      "versionInfo": "la12xx-sdk4.0",
+      "licenseConcluded": "(MIT)",
+      "licenseDeclared": "(MIT)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/freertos-kernel",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---46080570-c7e0-490e-9b11-f9518cecf33e",
+      "name": "arm-trusted-firmware",
+      "versionInfo": "v2.5-rc0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/ARM-software/arm-trusted-firmware",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: arm-software",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:arm:arm_trusted_firmware:2.5:rc0:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:arm:trusted_firmware-a:2.5:rc0:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:arm:arm-trusted-firmware:2.5:rc0:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:arm:arm_trusted_firmware:2.5:rc0:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:arm:trusted_firmware-a:2.5:rc0:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "fc5a02e2-3981-4be9-8fc7-5937a32f30aa",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/arm-software/arm-trusted-firmware@v2.5-rc0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---7d3f151d-d699-4a28-b134-fdaa86877a7f",
+      "name": "FreeRTOS Real Time Kernel",
+      "versionInfo": "V10.6.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://sourceforge.net/projects/freertos",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: freertos",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "2263ce1e-c431-40e0-b787-92d4161dc7f4",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:amazon:aws-freertos-kernel:10.6.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:amazon:freertos:10.6.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:o:amazon:freertos:10.6.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/freertos/freertos-kernel@V10.6.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---17b59419-d920-4047-9c1f-0c2715da50e9",
+      "name": "google/x-amber",
+      "versionInfo": "20200826-snapshot-351e5e9b",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: google",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "c1bf57bb-4770-4815-948b-804a5857e31c",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:github/google/x-amber@351e5e9b4f66d5d4099c7ad92072b3ceaf7b11a4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---17b59419-d920-4047-9c1f-0c2715da50e9"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---46080570-c7e0-490e-9b11-f9518cecf33e"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-662e2300-b9ab-4d09-8de3-134c4cead64d---7d3f151d-d699-4a28-b134-fdaa86877a7f"
+    }
+  ]
+}
